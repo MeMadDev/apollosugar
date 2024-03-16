@@ -1,98 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>Direct QR Code Download</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        #qrcode {
-            margin: 20px auto;
-        }
-
-        #qrText {
-            margin: 2px auto;
-        }
-
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 
 <body>
-    <input type="text" id="qrInput" placeholder="Enter clinic name eg. Gachibowli" />
-    <button onclick="updateQR()">Generate QR Code</button>
-    <div id="qrcode"></div>
-    <div id="qrText">Gachibowli</div>
-    <button onclick="downloadQR()">Download QR Code</button>
 
     <script>
-        // Initial QR code data
-        var qrData = "Gachibowli";
+        // Function to get URL parameters
+        function getQueryParam(param) {
+            var searchParams = new URLSearchParams(window.location.search);
+            return searchParams.get(param);
+        }
 
-        // Generate QR code
-        function generateQRCode(data) {
+        // Function to generate and download QR code directly
+        function generateAndDownloadQRCode(data) {
+            if (!data) {
+                console.log("No data provided for QR code.");
+                return; // Exit if no data provided
+            }
+
             var typeNumber = 0;
             var errorCorrectionLevel = 'L';
             var qr = qrcode(typeNumber, errorCorrectionLevel);
             qr.addData("https://logy.ai/apollodental?clinic_name=" + data);
             qr.make();
-            // Adjust the size of the QR code here, e.g., cell size 10 and margin 10
-            document.getElementById('qrcode').innerHTML = qr.createImgTag(10, 10);
-        }
 
-        // Update and generate QR code from input
-        function updateQR() {
-            qrData = document.getElementById('qrInput').value || "placeholder";
-            document.getElementById('qrText').innerHTML = qrData;
-            generateQRCode(qrData);
-        }
-
-        // Download QR code
-        function downloadQR() {
-            var qrCodeImg = document.querySelector('#qrcode img');
+            // Create canvas element to draw QR code for download
             var canvas = document.createElement('canvas');
             var context = canvas.getContext('2d');
+            var qrCodeImg = new Image();
+            qrCodeImg.onload = function () {
+                canvas.width = qrCodeImg.width;
+                canvas.height = qrCodeImg.height;
+                context.drawImage(qrCodeImg, 0, 0);
+                triggerDownload(canvas.toDataURL(), "QRCode.png");
+            };
+            qrCodeImg.src = qr.createDataURL(10, 10); // Set cell size and margin for QR code image
+        }
 
-            canvas.width = qrCodeImg.width;
-            canvas.height = qrCodeImg.height;
-            context.drawImage(qrCodeImg, 0, 0);
-
+        // Function to trigger download
+        function triggerDownload(dataUrl, filename) {
             var a = document.createElement('a');
-            a.href = canvas.toDataURL();
-            a.download = "QRCode.png";
+            a.href = dataUrl;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
 
-        // Initial QR code generation
-        generateQRCode(qrData);
+        // Automatically generate and download QR code from URL parameter 'data'
+        var qrData = getQueryParam('clinic_name');
+        generateAndDownloadQRCode(qrData);
     </script>
 </body>
 
