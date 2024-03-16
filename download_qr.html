@@ -7,15 +7,15 @@
 </head>
 <body>
     <h1>Download QR Code for This Page</h1>
-    <div hidden  id="qrcode"></div>
+    <div hidden id="qrcode"></div>
     <button style="background-color: darkgreen; color: white;" id="download-btn">Download QR Code</button>
 
     <script>
         // Generate the QR code
         var qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: window.location.href,
-            width: 128,
-            height: 128,
+            text: window.location.href.replace("download_qr/",""),
+            width: 1024,
+            height: 1024,
             colorDark : "#000000",
             colorLight : "#ffffff",
             correctLevel : QRCode.CorrectLevel.H
